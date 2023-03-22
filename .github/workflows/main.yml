@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Create Docker context
         run: |
-          docker context create mycontext --docker "host=/var/lib/docker"
+          docker context create mycontext --docker "host=172.30.240.1"
           docker context use mycontext
           
       - name: Run CLI command
