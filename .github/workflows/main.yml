@@ -1,4 +1,4 @@
-name: aro-aspnetcore.deployment
+name: ci.docker
 
 on: workflow_dispatch
 
