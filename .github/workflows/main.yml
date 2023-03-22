@@ -1,0 +1,51 @@
+name: aro-aspnetcore.deployment
+
+on: workflow_dispatch
+
+env:
+  AZ_RG_NAME: 'acr-poc'
+  AZ_RG_LOCATION: 'Brazil South'
+  AZ_ACR_NAME: 'sampleacr022'
+  
+jobs:          
+  build:
+    runs-on: [self-hosted, linux]
+    steps:
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      # Log into Azure
+      - name: Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Set ACR variables
+        run: |
+          url_acr=$(az acr show -n ${{ env.AZ_ACR_NAME }} --query loginServer --output tsv)
+          login_acr=$(az acr credential show -n ${{ env.AZ_ACR_NAME }} --query username --output tsv)
+          password_acr=$(az acr credential show -n ${{ env.AZ_ACR_NAME }} --query passwords[0].value --output tsv)
+          echo "::add-mask::$url_acr"
+          echo "::add-mask::$login_acr"
+          echo "::add-mask::$password_acr"
+          echo "ACR_URL=$url_acr" >> $GITHUB_ENV
+          echo "ACR_LOGIN=$login_acr" >> $GITHUB_ENV
+          echo "ACR_PASSWORD=$password_acr" >> $GITHUB_ENV
+          
+      - name: Docker Login
+        uses: docker/login-action@v1.14.1
+        with:
+          registry: ${{ env.ACR_URL }}
+          username: ${{ env.ACR_LOGIN }}
+          password: ${{ env.ACR_PASSWORD }}
+      
+      - name: Build and push TodoApi image
+        uses: docker/build-push-action@v3
+        with:
+          context: src/ContainerApp.TodoApi
+          file: src/ContainerApp.TodoApi/Dockerfile
+          tags: |
+            ${{ env.ACR_URL }}/containerapp.todoapi:${{ GITHUB.RUN_NUMBER }}
+            ${{ env.ACR_URL }}/containerapp.todoapi:latest
+          push: true  
