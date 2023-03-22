@@ -11,6 +11,9 @@ jobs:
   build:
     runs-on: [self-hosted]
     steps:
+      - name: Run CLI command
+        run: docker context ls
+      
       - name: Set up Docker Buildx      
         uses: docker/setup-buildx-action@v2
       
