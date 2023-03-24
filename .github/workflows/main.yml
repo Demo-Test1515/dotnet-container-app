@@ -14,7 +14,7 @@ jobs:
     steps:
     #  - name: Create Docker context
     #    run: |
-    #      docker context create mycontext --docker "host=tcp://localhost:2375" --description "My Docker context"
+    #      docker context create mycontext --docker "host=tcp://localhost:2376" --description "My Docker context"
     #      docker context use mycontext
           
    #   - name: Run CLI command
